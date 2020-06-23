@@ -179,11 +179,10 @@ contract TokenSubscription is Owned {
 
     uint subscriptionPriceFactor;
 
-    //uint SECONDS_PER_MONTH = 2592000;
 
     address public tokenCurrency;
 
-   //mapping(address => uint) balances;
+    event SubscriptionExtended(address from, address to, uint amount);
 
 
     mapping(address => mapping(address => uint256)) subscribedUntil;
@@ -219,8 +218,8 @@ contract TokenSubscription is Owned {
     {
       //The 'from' address pays the 'to' address
       require(ERC20Interface(tokenCurrency).transferFrom(from,to,amount));
-      
-      //Additional subscription time is calculated based on the amount spent 
+
+      //Additional subscription time is calculated based on the amount spent
       uint additionalSubscriptionSeconds = amount.mul(1000).div(subscriptionPriceFactor);
 
       uint currentSubscriptionTime = getSubscribedUntilTime(from,to).sub(now);
@@ -231,16 +230,18 @@ contract TokenSubscription is Owned {
       }
 
 
-      //set the new date mapping, the new subscription expiration time 
+      //set the new date mapping, the new subscription expiration time
       subscribedUntil[from][to] = (now.add(currentSubscriptionTime).add( additionalSubscriptionSeconds ));
+
+      emit SubscriptionExtended(from,to,amount);
 
       return true;
     }
 
 
     function getSubscribedUntilTime(address from, address to) public view returns (uint time)
-    { 
-    
+    {
+
       return subscribedUntil[from][to]; //Unix timestamp
 
     }
