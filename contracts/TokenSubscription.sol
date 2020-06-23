@@ -217,14 +217,11 @@ contract TokenSubscription is Owned {
 
     function subscribeToAccount(address from, address to, uint amount) public returns (bool success)
     {
-
-      //address from = msg.sender;
-      //address to = address(this);
-
+      //The 'from' address pays the 'to' address
       require(ERC20Interface(tokenCurrency).transferFrom(from,to,amount));
-
+      
+      //Additional subscription time is calculated based on the amount spent 
       uint additionalSubscriptionSeconds = amount.mul(1000).div(subscriptionPriceFactor);
-
 
       uint currentSubscriptionTime = getSubscribedUntilTime(from,to).sub(now);
 
@@ -234,7 +231,7 @@ contract TokenSubscription is Owned {
       }
 
 
-      //set date mapping
+      //set the new date mapping, the new subscription expiration time 
       subscribedUntil[from][to] = (now.add(currentSubscriptionTime).add( additionalSubscriptionSeconds ));
 
       return true;
@@ -242,15 +239,11 @@ contract TokenSubscription is Owned {
 
 
     function getSubscribedUntilTime(address from, address to) public view returns (uint time)
-    {
-
-
-      //set date mapping
+    { 
+    
       return subscribedUntil[from][to]; //Unix timestamp
 
     }
-
-
 
 
 
